@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pexeso s Hiraganou</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-template-rows: repeat(4, 100px);
+            gap: 10px;
+            transform: scale(1.2);
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #4CAF50;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            cursor: pointer;
+            border-radius: 10px;
+            position: relative;
+            transform: rotateY(0deg);
+            transition: transform 0.5s;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card .front,
+        .card .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+        }
+
+        .card .back {
+            display: none;
+        }
+
+        .card.flipped .back {
+            display: block;
+        }
+
+        .card.flipped .front {
+            display: none;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-template-rows: repeat(4, 100px);
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-board" id="gameBoard"></div>
+
+    <script>
+        const hiragana = [
+            { symbol: 'あ', latin: 'a' },
+            { symbol: 'い', latin: 'i' },
+            { symbol: 'う', latin: 'u' },
+            { symbol: 'え', latin: 'e' },
+            { symbol: 'お', latin: 'o' },
+            { symbol: 'か', latin: 'ka' },
+            { symbol: 'き', latin: 'ki' },
+            { symbol: 'く', latin: 'ku' },
+            { symbol: 'け', latin: 'ke' },
+            { symbol: 'こ', latin: 'ko' }
+        ];
+
+        let cards = [...hiragana, ...hiragana];
+        cards = cards.sort(() => Math.random() - 0.5); // Zamíchat karty
+
+        const gameBoard = document.getElementById('gameBoard');
+
+        let flippedCards = [];
+        let matchedPairs = 0;
+
+        cards.forEach(card => {
+            const cardElement = document.createElement('div');
+            cardElement.classList.add('card');
+            cardElement.setAttribute('data-symbol', card.symbol);
+            cardElement.setAttribute('data-latin', card.latin);
+
+            const front = document.createElement('div');
+            front.classList.add('front');
+            front.innerHTML = card.symbol;
+
+            const back = document.createElement('div');
+            back.classList.add('back');
+            back.innerHTML = card.latin;
+
+            cardElement.appendChild(front);
+            cardElement.appendChild(back);
+
+            cardElement.addEventListener('click', () => flipCard(cardElement));
+
+            gameBoard.appendChild(cardElement);
+        });
+
+        function flipCard(card) {
+            if (card.classList.contains('flipped') || flippedCards.length === 2) return;
+
+            card.classList.add('flipped');
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                setTimeout(checkMatch, 1000);
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+
+            if (card1.getAttribute('data-symbol') === card2.getAttribute('data-latin') || card1.getAttribute('data-latin') === card2.getAttribute('data-symbol')) {
+                matchedPairs++;
+                if (matchedPairs === hiragana.length) {
+                    alert('Vyhráli jste!');
+                }
+            } else {
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
+            }
+
+            flippedCards = [];
+        }
+    </script>
+</body>
+</html>
